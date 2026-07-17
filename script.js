@@ -474,7 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // GLOBAL EXECUTION ENGINE
   async function executeGeneration(type, prompt, params) {
     // 1. Check Credits
-    if (userCredits < 1) {
+    if (userCredits < 1000) {
       showDialog(
         "Kredit Tidak Cukup",
         "Limit harian telah habis. Silakan kembali besok.",
