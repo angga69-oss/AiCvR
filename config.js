@@ -1,30 +1,25 @@
-// ===============================
-// iAGvR Configuration
-// ===============================
+// iAGvR Configuration File
+// Di sini Anda dapat memasukkan endpoint API nyata untuk layanan AI Anda.
+// Jika API di bawah kosong, aplikasi akan berjalan dalam mode demo / simulasi berkualitas tinggi.
 
-// Tempel API Key Google AI Studio Anda di bawah ini
-const GEMINI_API_KEY = "AQ.Ab8RN6IbxoLKmWjzvMLzj9ijuDQJF7iEmSp3_lACc6zOAS9NFg";
-
-// Endpoint API
 const CONFIG = {
+  // Hubungkan ke API Generator Gambar Anda (misalnya: Midjourney, Stable Diffusion, DALL-E, atau Gemini Image API)
+  API_IMAGE: "AQ.Ab8RN6IbxoLKmWjzvMLzj9ijuDQJF7iEmSp3_lACc6zOAS9NFg",
 
-  // URL FIXED: Menggunakan endpoint resmi Google Imagen 3 untuk Text-to-Image
-  API_IMAGE: `https://googleapis.com{GEMINI_API_KEY}`,
+  // Hubungkan ke API Generator Video Anda (misalnya: Runway, Luma, Kling, Pika, Sora, dll)
+  API_TEXT_VIDEO: " AQ.Ab8RN6IbxoLKmWjzvMLzj9ijuDQJF7iEmSp3_lACc6zOAS9NFg",
 
-  // Text to Video (Kosongkan jika belum digunakan)
-  API_TEXT_VIDEO: "",
+  // Hubungkan ke API Image to Video Anda
+  API_IMAGE_VIDEO: "AQ.Ab8RN6IbxoLKmWjzvMLzj9ijuDQJF7iEmSp3_lACc6zOAS9NFg",
 
-  // Image to Video (Kosongkan jika belum digunakan)
-  API_IMAGE_VIDEO: "",
-
+  // Konfigurasi Tambahan jika diperlukan (seperti custom headers atau API token)
   API_HEADERS: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    // "Authorization": "Bearer YOUR_API_KEY"
   }
-
 };
 
-// Menyimpan API Key ke window agar bisa diakses secara global oleh fungsi executeGeneration di script.js
-window.AI_STUDIO_KEY = GEMINI_API_KEY;
-
-// Agar dapat dipanggil dari script.js
-window.CONFIG = CONFIG;
+// Pastikan global CONFIG dapat diakses
+if (typeof window !== "undefined") {
+  window.CONFIG = CONFIG;
+}
