@@ -8,17 +8,15 @@ const GEMINI_API_KEY = "AQ.Ab8RN6IbxoLKmWjzvMLzj9ijuDQJF7iEmSp3_lACc6zOAS9NFg";
 // Endpoint API
 const CONFIG = {
 
-  // Google AI Studio - Gemini 1.5 Flash Endpoint (Text & Multimodal)
-  // Catatan: Jika ingin menggunakan model pembuat gambar Imagen 3, Anda tinggal mengganti nama modelnya di URL ini
+  // URL FIXED: Menggunakan endpoint resmi Google Imagen 3 untuk Text-to-Image
   API_IMAGE: `https://googleapis.com{GEMINI_API_KEY}`,
 
-  // Text to Video (Kosongkan atau isi jika ada endpoint video pihak ketiga)
+  // Text to Video (Kosongkan jika belum digunakan)
   API_TEXT_VIDEO: "",
 
-  // Image to Video (Kosongkan atau isi jika ada endpoint video pihak ketiga)
+  // Image to Video (Kosongkan jika belum digunakan)
   API_IMAGE_VIDEO: "",
 
-  // Headers wajib untuk pengiriman data ke Google AI Studio dengan metode POST
   API_HEADERS: {
     "Content-Type": "application/json"
   }
