@@ -1,1 +1,411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>iAGvR - Premium AI Generator</title>
+  
+  <!-- Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <!-- Glowing Background Orbs -->
+  <div class="bg-glow">
+    <div class="orb orb-purple"></div>
+    <div class="orb orb-blue"></div>
+  </div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    
+    <!-- Top Bar -->
+    <header class="app-header">
+      <div class="header-logo">
+        <span class="logo-text">iAG<span class="gradient-accent">vR</span></span>
+        <span class="logo-badge">PRO</span>
+      </div>
+      <div class="header-credits" id="header-credits-container" title="Kredit Anda">
+        <span class="material-symbols-rounded icon-spin">bolt</span>
+        <span id="credit-count">4</span> <span class="credit-lbl">Kredit</span>
+      </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <main class="app-main">
+      
+      <!-- PAGE 1: GENERATOR -->
+      <section id="page-generator" class="app-page active">
+        <!-- Sub-tabs for Gen Types -->
+        <div class="gen-subtabs">
+          <button class="subtab-btn active" data-subtab="text-to-image">
+            <span class="material-symbols-rounded">image</span>
+            <span>Image</span>
+          </button>
+          <button class="subtab-btn" data-subtab="text-to-video">
+            <span class="material-symbols-rounded">movie</span>
+            <span>Video</span>
+          </button>
+          <button class="subtab-btn" data-subtab="image-to-video">
+            <span class="material-symbols-rounded">photo_camera_back</span>
+            <span>Img to Vid</span>
+          </button>
+        </div>
+
+        <!-- Gen Form Container -->
+        <div class="gen-form-card glass">
+          
+          <!-- SUBTAB: TEXT TO IMAGE -->
+          <div id="subtab-text-to-image" class="subtab-content active">
+            <div class="form-group">
+              <label for="prompt-image">Deskripsikan gambar yang ingin dibuat</label>
+              <textarea id="prompt-image" placeholder="Contoh: Astronaut riding a futuristic cyber horse on Mars, digital art, highly detailed, neon lights, 8k resolution..." rows="3"></textarea>
+            </div>
+            
+            <div class="form-row-grid">
+              <div class="form-group">
+                <label>Rasio Ukuran</label>
+                <div class="aspect-ratio-selector">
+                  <button class="ratio-btn active" data-ratio="1:1">
+                    <span class="ratio-box ratio-1-1"></span>
+                    <span>1:1</span>
+                  </button>
+                  <button class="ratio-btn" data-ratio="9:16">
+                    <span class="ratio-box ratio-9-16"></span>
+                    <span>9:16</span>
+                  </button>
+                  <button class="ratio-btn" data-ratio="16:9">
+                    <span class="ratio-box ratio-16-9"></span>
+                    <span>16:9</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Jumlah Hasil</label>
+                <div class="segmented-control">
+                  <button class="segment-btn active" data-count="1">1</button>
+                  <button class="segment-btn" data-count="2">2</button>
+                  <button class="segment-btn" data-count="4">4</button>
+                </div>
+              </div>
+            </div>
+
+            <button id="btn-generate-image" class="btn btn-primary btn-generate">
+              <span class="material-symbols-rounded">auto_awesome</span>
+              <span>Generate Gambar</span>
+            </button>
+          </div>
+
+          <!-- SUBTAB: TEXT TO VIDEO -->
+          <div id="subtab-text-to-video" class="subtab-content">
+            <div class="form-group">
+              <label for="prompt-video">Deskripsikan video yang ingin dibuat</label>
+              <textarea id="prompt-video" placeholder="Contoh: Cinematic shot of a spaceship entering hyperdrive speed, glowing blue particles, cosmic background, high-end CGI..." rows="3"></textarea>
+            </div>
+
+            <div class="form-row-grid">
+              <div class="form-group">
+                <label>Durasi Video</label>
+                <div class="segmented-control">
+                  <button class="duration-btn active" data-duration="5">5s</button>
+                  <button class="duration-btn" data-duration="8">8s</button>
+                  <button class="duration-btn" data-duration="10">10s</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Rasio Video</label>
+                <div class="aspect-ratio-selector">
+                  <button class="ratio-video-btn active" data-ratio="16:9">
+                    <span class="ratio-box ratio-16-9"></span>
+                    <span>16:9</span>
+                  </button>
+                  <button class="ratio-video-btn" data-ratio="9:16">
+                    <span class="ratio-box ratio-9-16"></span>
+                    <span>9:16</span>
+                  </button>
+                  <button class="ratio-video-btn" data-ratio="1:1">
+                    <span class="ratio-box ratio-1-1"></span>
+                    <span>1:1</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button id="btn-generate-video" class="btn btn-primary btn-generate">
+              <span class="material-symbols-rounded">videocam</span>
+              <span>Generate Video</span>
+            </button>
+          </div>
+
+          <!-- SUBTAB: IMAGE TO VIDEO -->
+          <div id="subtab-image-to-video" class="subtab-content">
+            <div class="form-group">
+              <label>Unggah Gambar Sumber</label>
+              <div class="upload-area" id="image-upload-area">
+                <input type="file" id="img-input" accept="image/*" style="display: none;">
+                <div class="upload-placeholder" id="upload-placeholder-content">
+                  <span class="material-symbols-rounded upload-icon">cloud_upload</span>
+                  <p class="upload-title">Klik atau Seret Gambar di Sini</p>
+                  <p class="upload-subtitle">Format JPG, PNG, atau WEBP (Maks 5MB)</p>
+                </div>
+                <div class="upload-preview-container" id="upload-preview-container" style="display: none;">
+                  <img src="" id="upload-preview-img" alt="Preview Gambar">
+                  <button id="btn-remove-preview" class="btn-icon btn-remove" title="Hapus Gambar">
+                    <span class="material-symbols-rounded">close</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="prompt-img-video">Deskripsi Gerakan / Animasi</label>
+              <textarea id="prompt-img-video" placeholder="Contoh: Make the water flow realistically, camera panning slowly to the left with cinematic dust particles..." rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Durasi Video</label>
+              <div class="segmented-control" id="img-video-duration">
+                <button class="img-duration-btn active" data-duration="5">5 Detik</button>
+                <button class="img-duration-btn" data-duration="8">8 Detik</button>
+                <button class="img-duration-btn" data-duration="10">10 Detik</button>
+              </div>
+            </div>
+
+            <button id="btn-generate-img-video" class="btn btn-primary btn-generate">
+              <span class="material-symbols-rounded">movie_filter</span>
+              <span>Generate Video dari Gambar</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- GENERATED RESULTS DISPLAY AREA -->
+        <div id="gen-results-section" class="gen-results-area glass" style="display: none;">
+          <div class="results-header">
+            <h3><span class="material-symbols-rounded glow-icon">auto_awesome</span> Hasil AI Generator</h3>
+            <span class="results-badge" id="results-type-badge">Image</span>
+          </div>
+
+          <!-- Output Image Gallery -->
+          <div id="image-results-gallery" class="results-gallery" style="display: none;">
+            <!-- Generated images will go here dynamically -->
+          </div>
+
+          <!-- Output Video Player -->
+          <div id="video-results-container" class="results-video" style="display: none;">
+            <div class="video-wrapper">
+              <video id="results-video-player" controls loop playsinline></video>
+            </div>
+            <div class="video-actions">
+              <a id="btn-download-video" class="btn btn-outline" download="iAGvR-Video.mp4">
+                <span class="material-symbols-rounded">download</span>
+                <span>Download Video</span>
+              </a>
+              <button id="btn-again-video" class="btn btn-secondary">
+                <span class="material-symbols-rounded">replay</span>
+                <span>Generate Lagi</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 2: HISTORY -->
+      <section id="page-history" class="app-page">
+        <div class="section-title-row">
+          <div>
+            <h2>Riwayat AI</h2>
+            <p class="subtitle">Daftar kreasi gambar dan video Anda sebelumnya</p>
+          </div>
+          <button id="btn-clear-history-icon" class="btn btn-icon-only text-danger" title="Hapus Semua Riwayat">
+            <span class="material-symbols-rounded">delete_sweep</span>
+          </button>
+        </div>
+
+        <!-- History Empty State -->
+        <div id="history-empty" class="empty-state">
+          <span class="material-symbols-rounded empty-icon">history_toggle_off</span>
+          <h3>Belum Ada Riwayat</h3>
+          <p>Mulailah berkreasi dengan AI di tab Generator!</p>
+          <button class="btn btn-secondary" onclick="switchMainPage('page-generator')">Buat Sekarang</button>
+        </div>
+
+        <!-- History Grid -->
+        <div id="history-grid" class="history-grid" style="display: none;">
+          <!-- Loaded dynamically from localStorage -->
+        </div>
+      </section>
+
+      <!-- PAGE 3: SETTINGS -->
+      <section id="page-settings" class="app-page">
+        <h2>Pengaturan</h2>
+        <p class="subtitle">Personalisasi dan atur aplikasi iAGvR Anda</p>
+
+        <div class="settings-list">
+          <!-- Setting Item: Theme Switcher -->
+          <div class="settings-card glass">
+            <div class="settings-info">
+              <span class="material-symbols-rounded settings-icon">dark_mode</span>
+              <div class="settings-text">
+                <h3>Tema Aplikasi</h3>
+                <p id="theme-desc">Ganti antara Tema Gelap dan Tema Terang</p>
+              </div>
+            </div>
+            <div class="settings-action">
+              <label class="switch">
+                <input type="checkbox" id="theme-toggle" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Setting Item: Clear History -->
+          <div class="settings-card glass">
+            <div class="settings-info">
+              <span class="material-symbols-rounded settings-icon text-danger">delete_forever</span>
+              <div class="settings-text">
+                <h3>Hapus Riwayat</h3>
+                <p>Bersihkan semua data kreasi dari penyimpanan lokal</p>
+              </div>
+            </div>
+            <div class="settings-action">
+              <button id="btn-settings-clear-history" class="btn btn-outline btn-sm text-danger-border">Hapus</button>
+            </div>
+          </div>
+
+          <!-- Setting Item: Reset Settings -->
+          <div class="settings-card glass">
+            <div class="settings-info">
+              <span class="material-symbols-rounded settings-icon">settings_backup_restore</span>
+              <div class="settings-text">
+                <h3>Reset Pengaturan</h3>
+                <p>Kembalikan kredit dan pengaturan default aplikasi</p>
+              </div>
+            </div>
+            <div class="settings-action">
+              <button id="btn-settings-reset" class="btn btn-outline btn-sm">Reset</button>
+            </div>
+          </div>
+
+          <!-- About Card -->
+          <div class="about-card glass">
+            <div class="about-header">
+              <span class="logo-text">iAG<span class="gradient-accent">vR</span></span>
+              <span class="about-version">v1.0.0</span>
+            </div>
+            <p class="about-desc">
+              AI Generator gratis premium untuk membuat gambar memukau dan video sinematik menggunakan teknologi kecerdasan buatan (AI).
+            </p>
+            <div class="about-meta">
+              <div class="meta-item">
+                <span class="material-symbols-rounded">verified_user</span>
+                <span>Aman & Privat</span>
+              </div>
+              <div class="meta-item">
+                <span class="material-symbols-rounded">offline_pin</span>
+                <span>PWA Siap</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- LOADING & PROGRESS MODAL -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+      <div class="loading-box glass">
+        <!-- Circular Animated Spinner -->
+        <div class="spinner-orbit">
+          <div class="orbit-ring ring-1"></div>
+          <div class="orbit-ring ring-2"></div>
+          <div class="orbit-ring ring-3"></div>
+          <span class="material-symbols-rounded ai-spark">bolt</span>
+        </div>
+        
+        <h3 id="loading-title">Menghasilkan Karya...</h3>
+        <p id="loading-status" class="loading-status">Sedang memproses...</p>
+
+        <!-- Progress Bar Container -->
+        <div class="progress-container">
+          <div class="progress-track">
+            <div id="loading-progress-bar" class="progress-bar" style="width: 0%;"></div>
+          </div>
+          <div class="progress-text">
+            <span id="loading-percent">0%</span>
+          </div>
+        </div>
+
+        <button id="btn-cancel-generation" class="btn btn-outline btn-sm" style="margin-top: 15px;">
+          <span>Batalkan</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="toast" style="display: none;">
+      <div class="toast-content">
+        <span class="material-symbols-rounded toast-icon" id="toast-icon">info</span>
+        <span class="toast-message" id="toast-message">Notifikasi</span>
+      </div>
+      <button id="toast-close" class="toast-close">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+
+    <!-- DIALOG BOX (For Alerts/Confirms/Out of Credits) -->
+    <div id="dialog-overlay" class="dialog-overlay" style="display: none;">
+      <div class="dialog-box glass">
+        <div class="dialog-icon-container">
+          <span class="material-symbols-rounded dialog-icon" id="dialog-icon-graphic">warning</span>
+        </div>
+        <h3 id="dialog-title">Limit Habis</h3>
+        <p id="dialog-description">Kredit harian Anda telah habis. Silakan kembali besok.</p>
+        <div class="dialog-buttons" id="dialog-buttons-container">
+          <!-- buttons rendered dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="app-nav">
+      <button class="nav-btn active" data-page="page-generator">
+        <span class="material-symbols-rounded">auto_awesome</span>
+        <span>Generator</span>
+      </button>
+      <button class="nav-btn" data-page="page-history">
+        <span class="material-symbols-rounded">history</span>
+        <span>Riwayat</span>
+      </button>
+      <button class="nav-btn" data-page="page-settings">
+        <span class="material-symbols-rounded">settings</span>
+        <span>Pengaturan</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((registration) => {
+          console.log('ServiceWorker registered with scope: ', registration.scope);
+        }, (err) => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
 
