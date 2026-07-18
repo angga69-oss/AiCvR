@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>IaChEvEr — AI Image &amp; Video Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07070d;
+    --card:#12121c;
+    --card2:#15151f;
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.14);
+    --text:#f2f2f7;
+    --muted:#8c8c9e;
+    --muted2:#5f5f70;
+    --p1:#7c3aed;
+    --p2:#3b82f6;
+    --grad: linear-gradient(135deg,var(--p1),var(--p2));
+    --pink1:#ec4899;
+    --pink2:#c026d3;
+    --danger:#ef4444;
+    --danger-bg:rgba(239,68,68,.1);
+    --ok:#22c55e;
+    --radius:18px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(124,58,237,.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 20%, rgba(59,130,246,.10), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    position:relative;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:34px 34px;
+    -webkit-mask-image:radial-gradient(ellipse 100% 60% at 50% 0%, black 0%, transparent 75%);
+    mask-image:radial-gradient(ellipse 100% 60% at 50% 0%, black 0%, transparent 75%);
+    pointer-events:none;
+    z-index:0;
+  }
+  h1,h2,h3,.brand,.display{font-family:'Space Grotesk',system-ui,sans-serif;}
+
+  #app{max-width:520px; margin:0 auto; min-height:100vh; position:relative; z-index:1; display:flex; flex-direction:column;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 18px 14px;
+    background:linear-gradient(180deg, rgba(7,7,13,.96), rgba(7,7,13,.75) 80%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex; align-items:center; gap:9px;}
+  .brand-mark{font-size:21px; font-weight:700; letter-spacing:-0.02em;}
+  .brand-mark .accent{
+    background:var(--grad);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .pro-badge{
+    font-size:10px; font-weight:700; letter-spacing:.04em;
+    background:linear-gradient(135deg,var(--pink1),var(--pink2));
+    padding:3px 9px; border-radius:20px; color:#fff;
+  }
+  .credits-pill{
+    display:flex; align-items:center; gap:6px;
+    background:rgba(124,58,237,.14);
+    border:1px solid rgba(124,58,237,.4);
+    padding:7px 14px; border-radius:24px;
+    font-weight:600; font-size:14px;
+  }
+  .credits-pill svg{color:#facc15; width:15px; height:15px;}
+  .credits-pill span{color:#d8c8ff;}
+
+  /* ---------- MAIN ---------- */
+  main{flex:1; padding:18px 18px 110px;}
+  .page{display:none; animation:fadeIn .25s ease;}
+  .page.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .subtabs{
+    display:flex; gap:8px; background:var(--card); border:1px solid var(--border);
+    padding:6px; border-radius:16px; margin-bottom:20px;
+  }
+  .subtab{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:12px 6px; border-radius:12px; cursor:pointer; user-select:none;
+    color:var(--muted); font-size:12.5px; font-weight:600; transition:.15s;
+    border:1px solid transparent;
+  }
+  .subtab svg{width:19px; height:19px;}
+  .subtab.active{
+    background:var(--grad); color:#fff;
+    box-shadow:0 6px 18px -6px rgba(124,58,237,.6);
+  }
+
+  .card{
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px; margin-bottom:16px;
+  }
+  .label{
+    font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--muted);
+    text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;
+  }
+  textarea, input[type=text], input[type=password], select{
+    width:100%; background:var(--card2); border:1px solid var(--border);
+    border-radius:12px; padding:13px 14px; color:var(--text); font-family:inherit;
+    font-size:14.5px; resize:none; outline:none; transition:.15s;
+  }
+  textarea:focus, input:focus, select:focus{border-color:var(--p1); background:#17172a;}
+  textarea::placeholder, input::placeholder{color:var(--muted2);}
+  textarea{min-height:88px; line-height:1.5;}
+
+  .choice-row{display:flex; gap:9px;}
+  .choice{
+    flex:1; text-align:center; padding:14px 4px; border-radius:12px;
+    background:var(--card2); border:1px solid var(--border); cursor:pointer;
+    color:var(--muted); font-size:13px; font-weight:600; transition:.15s;
+  }
+  .choice svg{display:block; margin:0 auto 6px; width:18px; height:18px;}
+  .choice.active{border-color:var(--p1); color:#fff; background:rgba(124,58,237,.16); box-shadow:0 0 0 1px var(--p1) inset;}
+
+  .mt{margin-top:18px;}
+
+  .upload-box{
+    border:1.5px dashed var(--border-strong); border-radius:14px;
+    padding:26px 14px; text-align:center; cursor:pointer; color:var(--muted);
+    background:var(--card2); font-size:13px; position:relative; overflow:hidden;
+  }
+  .upload-box img{max-width:100%; max-height:220px; border-radius:10px; display:block; margin:0 auto;}
+  .upload-box svg{width:26px; height:26px; margin-bottom:8px; color:var(--muted2);}
+  .upload-box input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
+
+  .btn-generate{
+    width:100%; border:none; border-radius:16px; padding:17px;
+    background:var(--grad); color:#fff; font-size:16px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer;
+    box-shadow:0 10px 26px -10px rgba(124,58,237,.7);
+    transition:.15s; margin-top:6px;
+  }
+  .btn-generate:active{transform:scale(.98);}
+  .btn-generate:disabled{opacity:.55; cursor:not-allowed; box-shadow:none;}
+  .btn-generate svg{width:18px; height:18px;}
+
+  .hint{font-size:12px; color:var(--muted2); margin-top:10px; line-height:1.5;}
+  .hint a{color:#a78bfa;}
+
+  .status-box{
+    margin-top:16px; border-radius:14px; padding:14px 16px; font-size:13.5px;
+    display:flex; gap:10px; align-items:flex-start; line-height:1.5;
+    border:1px solid var(--border);
+  }
+  .status-box.loading{background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.35); color:#d8c8ff;}
+  .status-box.error{background:var(--danger-bg); border-color:rgba(239,68,68,.35); color:#fca5a5;}
+  .status-box.success{background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.3); color:#86efac;}
+  .spin{width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.25); border-top-color:#fff; animation:spin .8s linear infinite; flex-shrink:0; margin-top:1px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .result-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:16px;}
+  .result-grid.single{grid-template-columns:1fr;}
+  .result-item{border-radius:14px; overflow:hidden; border:1px solid var(--border); background:var(--card2); position:relative;}
+  .result-item img, .result-item video{width:100%; display:block; aspect-ratio:1/1; object-fit:cover;}
+  .result-item.ar-9-16 img, .result-item.ar-9-16 video{aspect-ratio:9/16;}
+  .result-item.ar-16-9 img, .result-item.ar-16-9 video{aspect-ratio:16/9;}
+  .result-item a.dl{
+    position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,.55);
+    backdrop-filter:blur(4px); border-radius:9px; padding:7px; display:flex; color:#fff;
+  }
+  .result-item a.dl svg{width:15px; height:15px;}
+
+  /* advanced collapsible */
+  .adv-toggle{
+    display:flex; align-items:center; gap:6px; color:var(--muted); font-size:12.5px;
+    font-weight:600; cursor:pointer; margin-top:14px; user-select:none;
+  }
+  .adv-toggle svg{width:13px; height:13px; transition:.2s;}
+  .adv-toggle.open svg{transform:rotate(90deg);}
+  .adv-body{display:none; margin-top:12px;}
+  .adv-body.open{display:block;}
+
+  /* ---------- HISTORY ---------- */
+  .page-title{font-size:22px; font-weight:700; margin:2px 0 3px;}
+  .page-sub{color:var(--muted); font-size:13.5px; margin-bottom:20px;}
+  .hist-head{display:flex; align-items:center; justify-content:space-between;}
+  .icon-btn{
+    background:var(--card); border:1px solid var(--border); border-radius:11px;
+    padding:9px; color:var(--muted); cursor:pointer; display:flex;
+  }
+  .icon-btn.danger{color:#fca5a5; border-color:rgba(239,68,68,.3);}
+  .icon-btn svg{width:16px; height:16px;}
+
+  .empty-state{
+    text-align:center; padding:60px 20px 30px; color:var(--muted);
+  }
+  .empty-state svg{width:52px; height:52px; color:var(--muted2); margin-bottom:16px;}
+  .empty-state h3{color:var(--text); font-size:16px; margin:0 0 6px;}
+  .empty-state p{font-size:13.5px; margin:0 0 20px; line-height:1.5;}
+  .empty-state button{
+    background:var(--card2); border:1px solid var(--border-strong); color:var(--text);
+    padding:12px 24px; border-radius:12px; font-weight:600; font-size:14px; cursor:pointer;
+  }
+
+  .hist-item{
+    display:flex; gap:12px; background:var(--card); border:1px solid var(--border);
+    border-radius:14px; padding:12px; margin-top:12px; align-items:center;
+  }
+  .hist-thumb{
+    width:56px; height:56px; border-radius:10px; background:var(--card2); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; overflow:hidden; color:var(--muted2);
+  }
+  .hist-thumb img{width:100%; height:100%; object-fit:cover;}
+  .hist-thumb svg{width:20px; height:20px;}
+  .hist-info{flex:1; min-width:0;}
+  .hist-prompt{font-size:13.5px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .hist-meta{font-size:11.5px; color:var(--muted); margin-top:3px; display:flex; gap:6px; align-items:center;}
+  .hist-tag{background:var(--card2); padding:2px 7px; border-radius:6px; font-weight:600;}
+  .hist-del{background:none; border:none; color:var(--muted2); cursor:pointer; padding:6px;}
+  .hist-del svg{width:15px; height:15px;}
+
+  /* ---------- SETTINGS ---------- */
+  .set-card{
+    display:flex; align-items:center; gap:14px; background:var(--card);
+    border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:14px;
+  }
+  .set-icon{
+    width:40px; height:40px; border-radius:11px; background:var(--card2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#a78bfa;
+  }
+  .set-icon svg{width:19px; height:19px;}
+  .set-body{flex:1; min-width:0;}
+  .set-title{font-weight:700; font-size:14.5px;}
+  .set-desc{font-size:12.5px; color:var(--muted); margin-top:2px; line-height:1.4;}
+  .set-col{flex-direction:column; align-items:stretch;}
+
+  .switch{width:44px; height:25px; border-radius:20px; background:var(--grad); position:relative; flex-shrink:0; cursor:pointer;}
+  .switch::after{content:""; position:absolute; width:19px; height:19px; border-radius:50%; background:#fff; top:3px; right:3px; box-shadow:0 1px 3px rgba(0,0,0,.3);}
+
+  .btn-outline{
+    background:transparent; border:1px solid var(--border-strong); color:var(--text);
+    padding:9px 16px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .btn-outline.danger{color:#fca5a5; border-color:rgba(239,68,68,.35);}
+
+  .key-row{display:flex; gap:8px; margin-top:12px;}
+  .key-row input{flex:1;}
+  .key-row button{
+    background:var(--grad); border:none; color:#fff; padding:0 16px; border-radius:12px;
+    font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .save-flash{font-size:12px; color:var(--ok); margin-top:8px; display:none;}
+
+  .about-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; margin-top:6px;}
+  .about-badges{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;}
+  .about-badges span{
+    font-size:11.5px; color:var(--muted); background:var(--card2); border:1px solid var(--border);
+    padding:5px 10px; border-radius:20px; display:flex; align-items:center; gap:5px;
+  }
+  .about-badges svg{width:12px; height:12px;}
+  .ver-tag{background:var(--card2); color:var(--muted); font-size:11.5px; padding:3px 9px; border-radius:8px; font-weight:600;}
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottomnav{
+    position:fixed; left:0; right:0; bottom:0; z-index:30;
+    max-width:520px; margin:0 auto;
+    background:rgba(10,10,17,.92); backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);
+    display:flex; padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+  }
+  .navbtn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:8px 4px; border-radius:12px; cursor:pointer; color:var(--muted2);
+    font-size:11px; font-weight:600; transition:.15s;
+  }
+  .navbtn svg{width:20px; height:20px;}
+  .navbtn.active{color:#a78bfa; background:rgba(124,58,237,.12);}
+
+  ::-webkit-scrollbar{width:0;height:0;}
+
+  .toast{
+    position:fixed; left:50%; bottom:96px; transform:translate(-50%,20px);
+    background:#1c1c2b; border:1px solid var(--border-strong); color:var(--text);
+    padding:12px 18px; border-radius:12px; font-size:13.5px; box-shadow:0 10px 30px rgba(0,0,0,.4);
+    opacity:0; pointer-events:none; transition:.25s; z-index:100; max-width:88%; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">Ia<span class="accent">ChEvEr</span></span>
+      <span class="pro-badge">FREE</span>
+    </div>
+    <div class="credits-pill">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z"/></svg>
+      <span id="creditsCount">4</span> Kredit
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ===================== GENERATOR PAGE ===================== -->
+    <section class="page active" id="page-generator">
+
+      <div class="subtabs">
+        <div class="subtab active" data-sub="txt2img">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+          Image
+        </div>
+        <div class="subtab" data-sub="txt2vid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+          Video
+        </div>
+        <div class="subtab" data-sub="img2vid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>
+          Img to Vid
+        </div>
+      </div>
+
+      <!-- ---- TXT TO IMAGE ---- -->
+      <div class="subtab-panel" id="panel-txt2img">
+        <div class="card">
+          <div class="label">Deskripsikan gambar yang ingin dibuat</div>
+          <textarea id="imgPrompt" placeholder="Contoh: Pria duduk di bangku taman saat senja, gaya sinematik"></textarea>
+
+          <div class="label mt">Rasio Ukuran</div>
+          <div class="choice-row" id="imgRatio">
+            <div class="choice active" data-val="1024x1024" data-tag="1-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>1:1
+            </div>
+            <div class="choice" data-val="768x1344" data-tag="9-16">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/></svg>9:16
+            </div>
+            <div class="choice" data-val="1344x768" data-tag="16-9">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/></svg>16:9
+            </div>
+          </div>
+
+          <div class="label mt">Jumlah Hasil</div>
+          <div class="choice-row" id="imgCount">
+            <div class="choice active" data-val="1">1</div>
+            <div class="choice" data-val="2">2</div>
+            <div class="choice" data-val="4">4</div>
+          </div>
+
+          <div class="adv-toggle" id="advToggleImg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+            Model &amp; Opsi Lanjutan
+          </div>
+          <div class="adv-body" id="advBodyImg">
+            <div class="label">Model Hugging Face (text-to-image)</div>
+            <input type="text" id="imgModel" value="black-forest-labs/FLUX.1-schnell" placeholder="contoh: black-forest-labs/FLUX.1-schnell">
+            <div class="hint">Ganti dengan model image generation lain dari Hugging Face jika perlu, misalnya <code>stabilityai/stable-diffusion-xl-base-1.0</code>.</div>
+          </div>
+
+          <button class="btn-generate" id="btnGenImg">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5z"/></svg>
+            Generate Gambar
+          </button>
+          <div class="hint">Gratis tanpa login • memakai 1 kredit per gambar yang dihasilkan.</div>
+
+          <div id="statusImg"></div>
+          <div class="result-grid" id="resultImg"></div>
+        </div>
+      </div>
+
+      <!-- ---- TXT TO VIDEO ---- -->
+      <div class="subtab-panel" id="panel-txt2vid" style="display:none">
+        <div class="card">
+          <div class="label">Deskripsikan video yang ingin dibuat</div>
+          <textarea id="vidPrompt" placeholder="Contoh: Ombak laut bergulung di pantai saat matahari terbenam"></textarea>
+
+          <div class="adv-toggle" id="advToggleVid">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+            Model &amp; Opsi Lanjutan
+          </div>
+          <div class="adv-body" id="advBodyVid">
+            <div class="label">Model Hugging Face (text-to-video)</div>
+            <input type="text" id="vidModel" value="damo-vilab/text-to-video-ms-1.7b" placeholder="contoh: damo-vilab/text-to-video-ms-1.7b">
+            <div class="hint">Model text-to-video gratis di Hugging Face terbatas dan bisa lambat/tidak selalu aktif. Coba lagi jika muncul pesan "model sedang dimuat".</div>
+          </div>
+
+          <button class="btn-generate" id="btnGenVid">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5z"/></svg>
+            Generate Video
+          </button>
+          <div class="hint">Gratis tanpa login • memakai 1 kredit per video.</div>
+
+          <div id="statusVid"></div>
+          <div class="result-grid single" id="resultVid"></div>
+        </div>
+      </div>
+
+      <!-- ---- IMAGE TO VIDEO ---- -->
+      <div class="subtab-panel" id="panel-img2vid" style="display:none">
+        <div class="card">
+          <div class="label">Unggah Gambar</div>
+          <label class="upload-box" id="uploadBox">
+            <div id="uploadPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+              <div>Ketuk untuk pilih gambar</div>
+            </div>
+            <img id="uploadPreview" style="display:none">
+            <input type="file" id="imgFile" accept="image/*">
+          </label>
+
+          <div class="label mt">Deskripsikan gerakan/prompt (opsional)</div>
+          <textarea id="i2vPrompt" placeholder="Contoh: Kamera perlahan zoom in, rambut tertiup angin"></textarea>
+
+          <div class="adv-toggle" id="advToggleI2v">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+            Model &amp; Opsi Lanjutan
+          </div>
+          <div class="adv-body" id="advBodyI2v">
+            <div class="label">Model Hugging Face (image-to-video)</div>
+            <input type="text" id="i2vModel" value="stabilityai/stable-video-diffusion-img2vid-xt" placeholder="contoh: stabilityai/stable-video-diffusion-img2vid-xt">
+            <div class="hint">Tidak semua model image-to-video tersedia lewat Inference API gratis. Jika gagal, coba model lain yang mendukung Serverless Inference.</div>
+          </div>
+
+          <button class="btn-generate" id="btnGenI2v">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5z"/></svg>
+            Generate Video
+          </button>
+          <div class="hint">Gratis tanpa login • memakai 1 kredit per video.</div>
+
+          <div id="statusI2v"></div>
+          <div class="result-grid single" id="resultI2v"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===================== HISTORY PAGE ===================== -->
+    <section class="page" id="page-history">
+      <div class="hist-head">
+        <div>
+          <div class="page-title">Riwayat AI</div>
+          <div class="page-sub" style="margin-bottom:0">Daftar kreasi gambar dan video Anda sebelumnya</div>
+        </div>
+        <div class="icon-btn danger" id="btnClearHistTop" title="Hapus semua riwayat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </div>
+      </div>
+
+      <div id="historyEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <h3>Belum Ada Riwayat</h3>
+        <p>Mulailah berkreasi dengan AI di tab Generator!</p>
+        <button id="btnGoGenerate">Buat Sekarang</button>
+      </div>
+
+      <div id="historyList"></div>
+    </section>
+
+    <!-- ===================== SETTINGS PAGE ===================== -->
+    <section class="page" id="page-settings">
+      <div class="page-title">Pengaturan</div>
+      <div class="page-sub">Personalisasi dan atur aplikasi IaChEvEr Anda</div>
+
+      <div class="set-card">
+        <div class="set-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </div>
+        <div class="set-body">
+          <div class="set-title">Tema Aplikasi</div>
+          <div class="set-desc">Sedang menggunakan Tema Gelap premium</div>
+        </div>
+        <div class="switch"></div>
+      </div>
+
+      <div class="set-card set-col">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="set-body">
+            <div class="set-title">Hugging Face API Key</div>
+            <div class="set-desc">Diperlukan agar fitur generate berfungsi. Disimpan hanya di perangkat Anda.</div>
+          </div>
+        </div>
+        <div class="key-row">
+          <input type="password" id="hfKeyInput" placeholder="hf_xxxxxxxxxxxxxxxxxxxx">
+          <button id="btnSaveKey">Simpan</button>
+        </div>
+        <div class="save-flash" id="keySaveFlash">Tersimpan ✓</div>
+        <div class="hint">Ambil API key gratis di <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a></div>
+      </div>
+
+      <div class="set-card">
+        <div class="set-icon" style="color:#fca5a5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+        <div class="set-body">
+          <div class="set-title">Hapus Riwayat</div>
+          <div class="set-desc">Bersihkan semua data kreasi dari penyimpanan lokal</div>
+        </div>
+        <button class="btn-outline danger" id="btnClearHist">Hapus</button>
+      </div>
+
+      <div class="set-card">
+        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
+        <div class="set-body">
+          <div class="set-title">Reset Pengaturan</div>
+          <div class="set-desc">Kembalikan kredit dan pengaturan default aplikasi</div>
+        </div>
+        <button class="btn-outline" id="btnReset">Reset</button>
+      </div>
+
+      <div class="about-card">
+        <div class="brand-mark" style="font-size:19px">Ia<span class="accent">ChEvEr</span></div>
+        <p style="color:var(--muted); font-size:13.5px; line-height:1.6; margin:12px 0 0;">
+          AI Generator gratis untuk membuat gambar memukau dan video dari teks, ditenagai oleh model-model Hugging Face pilihan Anda sendiri.
+        </p>
+        <div class="about-badges">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>Aman &amp; Privat</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>100% Gratis</span>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:14px;"><span class="ver-tag">IaChEvEr v1.0.0</span></div>
+    </section>
+
+  </main>
+
+  <div class="bottomnav">
+    <div class="navbtn active" data-page="generator">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5z"/></svg>
+      Generator
+    </div>
+    <div class="navbtn" data-page="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+      Riwayat
+    </div>
+    <div class="navbtn" data-page="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      Pengaturan
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   IaChEvEr — AI Image & Video Generator
+   Client-side app powered by the Hugging Face Inference API.
+   All data (API key, credits, history) stays in localStorage.
+   ============================================================ */
+
+const LS = {
+  key: 'iachever_hf_key',
+  credits: 'iachever_credits',
+  history: 'iachever_history',
+};
+const DEFAULT_CREDITS = 4;
+const MAX_HISTORY = 40;
+
+// ---------- state ----------
+let credits = parseInt(localStorage.getItem(LS.credits) ?? DEFAULT_CREDITS, 10);
+if (isNaN(credits)) credits = DEFAULT_CREDITS;
+let hfKey = localStorage.getItem(LS.key) || '';
+let history = [];
+try { history = JSON.parse(localStorage.getItem(LS.history) || '[]'); } catch(e){ history = []; }
+
+// ---------- helpers ----------
+function $(sel){ return document.querySelector(sel); }
+function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+function saveCredits(){ localStorage.setItem(LS.credits, String(credits)); $('#creditsCount').textContent = credits; }
+function saveHistory(){
+  if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+  localStorage.setItem(LS.history, JSON.stringify(history));
+}
+function toast(msg, ms=2600){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), ms);
+}
+function statusEl(id, type, html){
+  const el = $(id);
+  if (!html){ el.innerHTML=''; return; }
+  el.innerHTML = `<div class="status-box ${type}">
+    ${type==='loading' ? '<div class="spin"></div>' : ''}
+    <div>${html}</div>
+  </div>`;
+}
+function hasCredits(n=1){
+  if (credits < n){
+    toast('Kredit habis. Buka Pengaturan → Reset untuk kredit gratis lagi.');
+    return false;
+  }
+  return true;
+}
+function spendCredit(n=1){ credits -= n; if (credits<0) credits=0; saveCredits(); }
+function requireKey(){
+  if (!hfKey){
+    toast('Masukkan Hugging Face API key di tab Pengaturan dulu.');
+    goPage('settings');
+    return false;
+  }
+  return true;
+}
+
+// ---------- init ui ----------
+saveCredits();
+$('#hfKeyInput').value = hfKey;
+
+// ---------- bottom nav ----------
+function goPage(name){
+  $all('.page').forEach(p=>p.classList.remove('active'));
+  $all('.navbtn').forEach(b=>b.classList.remove('active'));
+  $(`#page-${name}`).classList.add('active');
+  $(`.navbtn[data-page="${name}"]`).classList.add('active');
+}
+$all('.navbtn').forEach(btn=>btn.addEventListener('click', ()=>goPage(btn.dataset.page)));
+$('#btnGoGenerate').addEventListener('click', ()=>goPage('generator'));
+
+// ---------- sub tabs ----------
+function goSub(name){
+  $all('.subtab').forEach(s=>s.classList.remove('active'));
+  $(`.subtab[data-sub="${name}"]`).classList.add('active');
+  $all('.subtab-panel').forEach(p=>p.style.display='none');
+  $(`#panel-${name}`).style.display='block';
+}
+$all('.subtab').forEach(s=>s.addEventListener('click', ()=>goSub(s.dataset.sub)));
+
+// ---------- choice rows (ratio / count) ----------
+function wireChoiceRow(id){
+  $all(`#${id} .choice`).forEach(c=>{
+    c.addEventListener('click', ()=>{
+      $all(`#${id} .choice`).forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+}
+wireChoiceRow('imgRatio');
+wireChoiceRow('imgCount');
+
+// ---------- advanced toggles ----------
+function wireAdv(toggleId, bodyId){
+  $(`#${toggleId}`).addEventListener('click', ()=>{
+    $(`#${toggleId}`).classList.toggle('open');
+    $(`#${bodyId}`).classList.toggle('open');
+  });
+}
+wireAdv('advToggleImg','advBodyImg');
+wireAdv('advToggleVid','advBodyVid');
+wireAdv('advToggleI2v','advBodyI2v');
+
+// ---------- settings ----------
+$('#btnSaveKey').addEventListener('click', ()=>{
+  hfKey = $('#hfKeyInput').value.trim();
+  localStorage.setItem(LS.key, hfKey);
+  const f = $('#keySaveFlash'); f.style.display='block';
+  setTimeout(()=>f.style.display='none', 1800);
+  toast('API key tersimpan di perangkat ini.');
+});
+function clearHistory(){
+  history = [];
+  saveHistory();
+  renderHistory();
+  toast('Riwayat dihapus.');
+}
+$('#btnClearHist').addEventListener('click', clearHistory);
+$('#btnClearHistTop').addEventListener('click', clearHistory);
+$('#btnReset').addEventListener('click', ()=>{
+  credits = DEFAULT_CREDITS; saveCredits();
+  hfKey=''; localStorage.setItem(LS.key,''); $('#hfKeyInput').value='';
+  toast('Kredit & pengaturan dikembalikan ke default.');
+});
+
+// ---------- history render ----------
+function typeIcon(type){
+  if (type==='image') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
+}
+function renderHistory(){
+  const list = $('#historyList');
+  const empty = $('#historyEmpty');
+  if (!history.length){ empty.style.display='block'; list.innerHTML=''; return; }
+  empty.style.display='none';
+  list.innerHTML = history.map(h=>`
+    <div class="hist-item" data-id="${h.id}">
+      <div class="hist-thumb">${h.thumb ? `<img src="${h.thumb}">` : typeIcon(h.type)}</div>
+      <div class="hist-info">
+        <div class="hist-prompt">${escapeHtml(h.prompt || '(tanpa prompt)')}</div>
+        <div class="hist-meta">
+          <span class="hist-tag">${h.type==='image'?'Gambar':'Video'}</span>
+          <span>${h.time}</span>
+        </div>
+      </div>
+      <button class="hist-del" data-del="${h.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
+    </div>
+  `).join('');
+  $all('[data-del]').forEach(b=>b.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const id = b.dataset.del;
+    history = history.filter(h=>h.id!==id);
+    saveHistory(); renderHistory();
+  }));
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function addHistory(entry){
+  entry.id = 'h'+Date.now()+Math.random().toString(36).slice(2,7);
+  entry.time = new Date().toLocaleString('id-ID', {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short'});
+  history.unshift(entry);
+  saveHistory();
+  renderHistory();
+}
+renderHistory();
+
+// ---------- Hugging Face calls ----------
+async function hfBlobRequest(model, body, isBinary=false, binaryContentType='application/octet-stream'){
+  const res = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+    method:'POST',
+    headers: isBinary
+      ? { 'Authorization':`Bearer ${hfKey}`, 'Content-Type': binaryContentType }
+      : { 'Authorization':`Bearer ${hfKey}`, 'Content-Type':'application/json' },
+    body: isBinary ? body : JSON.stringify(body)
+  });
+  const contentType = res.headers.get('content-type') || '';
+  if (!res.ok || contentType.includes('application/json')){
+    let msg = `HTTP ${res.status}`;
+    try{
+      const j = await res.json();
+      if (j.error) msg = j.error + (j.estimated_time ? ` (coba lagi ~${Math.ceil(j.estimated_time)}s)` : '');
+    }catch(e){}
+    throw new Error(msg);
+  }
+  return await res.blob();
+}
+function blobToDataUrl(blob){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=>resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+}
+
+// ---------- TXT TO IMAGE ----------
+$('#btnGenImg').addEventListener('click', async ()=>{
+  const prompt = $('#imgPrompt').value.trim();
+  if (!prompt){ toast('Tulis deskripsi gambar dulu.'); return; }
+  if (!requireKey()) return;
+  const count = parseInt($all('#imgCount .choice.active')[0].dataset.val, 10);
+  if (!hasCredits(count)) return;
+
+  const model = $('#imgModel').value.trim() || 'black-forest-labs/FLUX.1-schnell';
+  const [w,h] = $all('#imgRatio .choice.active')[0].dataset.val.split('x').map(Number);
+  const arTag = $all('#imgRatio .choice.active')[0].dataset.tag;
+
+  const btn = $('#btnGenImg'); btn.disabled = true;
+  $('#resultImg').innerHTML = '';
+  $('#resultImg').className = 'result-grid' + (count===1 ? ' single' : '');
+  statusEl('#statusImg','loading', `Membuat ${count} gambar dengan model <b>${model}</b>…`);
+
+  let success = 0;
+  for (let i=0; i<count; i++){
+    try{
+      const blob = await hfBlobRequest(model, { inputs: prompt, parameters: { width:w, height:h } });
+      const url = URL.createObjectURL(blob);
+      const item = document.createElement('div');
+      item.className = 'result-item ar-' + arTag.replace('_','-');
+      item.innerHTML = `<img src="${url}"><a class="dl" href="${url}" download="iachever-${Date.now()}-${i}.png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></a>`;
+      $('#resultImg').appendChild(item);
+      success++;
+      spendCredit(1);
+      const dataUrl = await blobToDataUrl(blob);
+      addHistory({ type:'image', prompt, model, thumb: dataUrl });
+    }catch(err){
+      statusEl('#statusImg','error', `Gagal membuat gambar ke-${i+1}: ${escapeHtml(err.message)}`);
+    }
+  }
+  if (success>0) statusEl('#statusImg','success', `${success} dari ${count} gambar berhasil dibuat.`);
+  btn.disabled = false;
+});
+
+// ---------- TXT TO VIDEO ----------
+$('#btnGenVid').addEventListener('click', async ()=>{
+  const prompt = $('#vidPrompt').value.trim();
+  if (!prompt){ toast('Tulis deskripsi video dulu.'); return; }
+  if (!requireKey()) return;
+  if (!hasCredits(1)) return;
+
+  const model = $('#vidModel').value.trim() || 'damo-vilab/text-to-video-ms-1.7b';
+  const btn = $('#btnGenVid'); btn.disabled = true;
+  $('#resultVid').innerHTML = '';
+  statusEl('#statusVid','loading', `Membuat video dengan model <b>${model}</b>… bisa memakan waktu 30–90 detik.`);
+
+  try{
+    const blob = await hfBlobRequest(model, { inputs: prompt });
+    const url = URL.createObjectURL(blob);
+    $('#resultVid').innerHTML = `<div class="result-item"><video src="${url}" controls autoplay loop muted></video><a class="dl" href="${url}" download="iachever-${Date.now()}.mp4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></a></div>`;
+    spendCredit(1);
+    statusEl('#statusVid','success', 'Video berhasil dibuat.');
+    addHistory({ type:'video', prompt, model, thumb:null });
+  }catch(err){
+    statusEl('#statusVid','error', `Gagal membuat video: ${escapeHtml(err.message)}. Coba model text-to-video lain yang aktif di Hugging Face Inference API.`);
+  }
+  btn.disabled = false;
+});
+
+// ---------- IMG TO VIDEO ----------
+let uploadedFile = null;
+$('#imgFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  uploadedFile = file;
+  const url = URL.createObjectURL(file);
+  $('#uploadPreview').src = url;
+  $('#uploadPreview').style.display = 'block';
+  $('#uploadPlaceholder').style.display = 'none';
+});
+
+$('#btnGenI2v').addEventListener('click', async ()=>{
+  if (!uploadedFile){ toast('Unggah gambar dulu.'); return; }
+  if (!requireKey()) return;
+  if (!hasCredits(1)) return;
+
+  const model = $('#i2vModel').value.trim() || 'stabilityai/stable-video-diffusion-img2vid-xt';
+  const prompt = $('#i2vPrompt').value.trim();
+  const btn = $('#btnGenI2v'); btn.disabled = true;
+  $('#resultI2v').innerHTML = '';
+  statusEl('#statusI2v','loading', `Mengubah gambar menjadi video dengan model <b>${model}</b>…`);
+
+  try{
+    const blob = await hfBlobRequest(model, uploadedFile, true, uploadedFile.type || 'application/octet-stream');
+    const url = URL.createObjectURL(blob);
+    $('#resultI2v').innerHTML = `<div class="result-item"><video src="${url}" controls autoplay loop muted></video><a class="dl" href="${url}" download="iachever-${Date.now()}.mp4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></a></div>`;
+    spendCredit(1);
+    statusEl('#statusI2v','success', 'Video berhasil dibuat.');
+    addHistory({ type:'video', prompt: prompt || '(gambar ke video)', model, thumb:null });
+  }catch(err){
+    statusEl('#statusI2v','error', `Gagal: ${escapeHtml(err.message)}. Tidak semua model image-to-video tersedia lewat Inference API gratis — coba model lain.`);
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>
