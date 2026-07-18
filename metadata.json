@@ -1,0 +1,6 @@
+{
+  "name": "iAGvR",
+  "description": "AI Generator gratis untuk membuat gambar dan video menggunakan teknologi AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
